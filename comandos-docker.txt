@@ -1,0 +1,11 @@
+# Checar porta
+
+netstat -aof| findstr 5432
+
+#Creat network
+
+#Rodar container Postgres na versão 17.5
+docker run --name librarydb -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=library -d --network library-network postgres:17.5
+
+#Rodar pgadmin4
+docker run --name pgadmin4 -p 15432:80 -e PGADMIN_DEFAULT_EMAIL=admin@admin.com -e PGADMIN_DEFAULT_P ASSWORD=admin -d --network library-network dpage/pgadmin4

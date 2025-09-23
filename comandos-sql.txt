@@ -26,3 +26,4 @@ create table livro(
     genero IN ('FICCAO','ROMANCE','FANTASIA','CIENCIA','MISTERIO','BIOGRAFIA')
 )
 );
+

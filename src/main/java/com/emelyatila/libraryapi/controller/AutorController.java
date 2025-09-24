@@ -2,6 +2,7 @@ package com.emelyatila.libraryapi.controller;
 
 import com.emelyatila.libraryapi.controller.dto.AutorDTO;
 import com.emelyatila.libraryapi.controller.dto.ErroResposta;
+import com.emelyatila.libraryapi.controller.mappers.AutorMapper;
 import com.emelyatila.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import com.emelyatila.libraryapi.exceptions.RegistroDuplicadoException;
 import com.emelyatila.libraryapi.model.Autor;
@@ -26,11 +27,12 @@ import java.util.stream.Collectors;
 public class AutorController {
 
     private final AutorService service;
+    private final AutorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO autor){
+    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO dto){
         try {
-            Autor autorEntidade = autor.mapearParaAutor();
+            Autor autorEntidade = mapper.toEntity(dto);
             service.salvar(autorEntidade);
 
             // criar url com id

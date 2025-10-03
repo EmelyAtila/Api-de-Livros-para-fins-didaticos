@@ -32,14 +32,14 @@ public class AutorController {
     @PostMapping
     public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO dto){
         try {
-            Autor autorEntidade = mapper.toEntity(dto);
-            service.salvar(autorEntidade);
+            Autor autor = mapper.toEntity(dto);
+            service.salvar(autor);
 
             // criar url com id
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/ {id}")
-                    .buildAndExpand(autorEntidade.getId())
+                    .buildAndExpand(autor.getId())
                     .toUri();
 
             return ResponseEntity.created(location).build();
@@ -54,45 +54,13 @@ public class AutorController {
         var idAutor = UUID.fromString(id);
         Optional<Autor> autorOptional = service.obterPorId(idAutor);
 
-        if(autorOptional.isPresent()){
-            Autor autor = autorOptional.get();
-            AutorDTO dto =  new AutorDTO(autor.getId(),
-                                         autor.getNome(),
-                                         autor.getDataNascimento(),
-                                         autor.getNacionalidade());
-
-            return ResponseEntity.ok(dto);
-        }
-
-        return ResponseEntity.notFound().build(); 
+        return service
+                .obterPorId(idAutor)
+                .map(autor ->{
+                    AutorDTO dto = mapper.toDTO(autor);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet( () -> ResponseEntity.notFound().build());
     }
-// opção para limpar quebra de linha na url, mas no postman usei ../:id para receber o id por parametro e não url
-//    @GetMapping("{id}")
-//    public ResponseEntity<AutorDTO> obterDetalhes(@PathVariable("id") String id) {
-//        try {
-//            // Remove espaços e quebras de linha
-//            UUID idAutor = UUID.fromString(id.trim());
-//
-//            Optional<Autor> autorOptional = service.obterPorId(idAutor);
-//
-//            if (autorOptional.isPresent()) {
-//                Autor autor = autorOptional.get();
-//                AutorDTO dto = new AutorDTO(
-//                        autor.getId(),
-//                        autor.getNome(),
-//                        autor.getDataNascimento(),
-//                        autor.getNacionalidade()
-//                );
-//                return ResponseEntity.ok(dto);
-//            }
-//
-//            return ResponseEntity.notFound().build();
-//
-//        } catch (IllegalArgumentException e) {
-//            // ID inválido → retorna 400 em vez de 500
-//            return ResponseEntity.badRequest().build();
-//        }
-//    }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Object> deletar(@PathVariable("id") String id){

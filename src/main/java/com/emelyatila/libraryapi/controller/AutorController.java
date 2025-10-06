@@ -9,7 +9,6 @@ import com.emelyatila.libraryapi.model.Autor;
 import com.emelyatila.libraryapi.services.AutorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -88,12 +87,8 @@ public class AutorController {
             List<Autor> resultado = service.pesquisaByExemple(nome,nacionalidade);
             List<AutorDTO> lista = resultado
                     .stream()
-                    .map(autor -> new AutorDTO(
-                            autor.getId(),
-                            autor.getNome(),
-                            autor.getDataNascimento(),
-                            autor.getNacionalidade())
-                    ).collect(Collectors.toList());
+                    .map(mapper::toDTO)
+                    .collect(Collectors.toList());
 
             return ResponseEntity.ok(lista);
 

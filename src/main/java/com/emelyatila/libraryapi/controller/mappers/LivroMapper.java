@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Mapper(componentModel = "spring")
 public abstract class LivroMapper {
 
-    @Autowired
-    AutorRepository autorRepository;
+@Autowired
+AutorRepository autorRepository;
 
-    @Mapping(target = "autor", expression = "java(autorRepository.findById(dto.idAutor()).orElse(null))")
-    public abstract Livro toEntity(CadastroLivroDTO dto);
+@Mapping(target = "autor", expression = "java(autorRepository.findById(dto.idAutor()).orElse(null))")
+public abstract Livro toEntity(CadastroLivroDTO dto);
 }

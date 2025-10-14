@@ -17,26 +17,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("livros")
 @RequiredArgsConstructor
-public class LivroController implements GenericController{
+public class LivroController implements GenericController {
 
     private final LivroService service;
     private final LivroMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> salvar(@RequestBody @Valid CadastroLivroDTO dto){
-        try{
-            // Acrescengtar Lógica para mapear dto para entidade
-            Livro livro = mapper.toEntity(dto);
-            // enviar a entidade para o service salvar na base de dados
-            service.salvar(livro);
-            // criar url para acesso dos dados do livro
-            //retornar código created com header location
-            var url = gerarHeaderLocation(livro.getId());
-            return ResponseEntity.created(url).build();
-            // Vamos mapear com uma bliblioteca diferente do AutorDTO MapsTruck
-        }catch(RegistroDuplicadoException e){
-            var erroDTO = ErroResposta.conflito(e.getMessage());
-            return ResponseEntity.status(erroDTO.status()).body(erroDTO);
-        }
+    public ResponseEntity<Void> salvar(@RequestBody @Valid CadastroLivroDTO dto) {
+        // Acrescengtar Lógica para mapear dto para entidade
+        Livro livro = mapper.toEntity(dto);
+        // enviar a entidade para o service salvar na base de dados
+        service.salvar(livro);
+        // criar url para acesso dos dados do livro
+        //retornar código created com header location
+        var url = gerarHeaderLocation(livro.getId());
+        return ResponseEntity.created(url).build();
     }
 }

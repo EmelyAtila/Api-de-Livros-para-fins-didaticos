@@ -2,6 +2,8 @@ package com.emelyatila.libraryapi.controller.common;
 
 import com.emelyatila.libraryapi.controller.dto.ErroCampo;
 import com.emelyatila.libraryapi.controller.dto.ErroResposta;
+import com.emelyatila.libraryapi.exceptions.OperacaoNaoPermitidaException;
+import com.emelyatila.libraryapi.exceptions.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +30,26 @@ public class GlobalExceptionHandler {
                 listaErros);
     }
 
+    @ExceptionHandler(RegistroDuplicadoException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErroResposta handleRegistroDuplicadoException(RegistroDuplicadoException e){
+        return ErroResposta.conflito(e.getMessage());
+    }
+
+    @ExceptionHandler(OperacaoNaoPermitidaException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErroResposta handleOperacaoNaoPermetidaException(
+            OperacaoNaoPermitidaException e){
+        return ErroResposta.respostaPadrao(e.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErroResposta handleErrosNaoTratados(RuntimeException e){
+        return new ErroResposta(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Ocoreu um erro inesperado. Entre em contato com a administração",
+                List.of());
+    }
 }
 
 

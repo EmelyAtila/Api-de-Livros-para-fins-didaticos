@@ -1,49 +1,53 @@
+# 📚 Cadastro de Autor
 
-# 📚 API de Cadastro de Autores
-
-## 📖 Descrição
-Esta API permite o **cadastro, atualização, consulta e exclusão** de autores de livros.  
-O objetivo é gerenciar informações de autores e garantir integridade das regras de negócio.
+## 📝 Descrição
+Deseja-se cadastrar os autores de livros, bem como realizar suas **atualizações**, **consultas** e permitir sua **exclusão**.
 
 ---
 
-## 👥 Atores do Sistema
-- **Gerente**
-  - Pode **cadastrar, atualizar e remover** autores.
-- **Operador**
-  - Pode **consultar** os dados dos autores.
+## 👥 Atores
+- **Gerente** → pode cadastrar, atualizar e remover Autores.
+- **Operador** → pode apenas consultar os dados dos Autores.
 
 ---
 
-## 📌 Campos do Autor
+## 📋 Campos Solicitados pelo Negócio
+**Dados que deverão ser guardados:**
+- Nome *
+- Data de Nascimento *
+- Nacionalidade *
 
-### **Campos Obrigatórios (Negócio)**
-- `nome` (string) – Nome do autor
-- `dataNascimento` (date) – Data de nascimento
-- `nacionalidade` (string) – Nacionalidade
-
-### **Campos Lógicos (Controle e Auditoria)**
-- `id` (UUID) – Identificador único
-- `dataCadastro` (datetime) – Data do cadastro
-- `dataUltimaAtualizacao` (datetime) – Última atualização
-- `usuarioUltimaAtualizacao` (string) – Usuário que realizou a última atualização
+> Campos com (*) são obrigatórios.
 
 ---
 
-## ⚖️ Regras de Negócio
-- Não é permitido cadastrar **dois autores** com os mesmos **Nome + Data de Nascimento + Nacionalidade**.  
-- Não é permitido excluir um autor que possua livros cadastrados.
+## ⚙️ Campos Lógicos
+Dados não solicitados pela equipe de negócio, mas necessários para **controle da aplicação e auditoria**:
+- ID — UUID
+- Data de Cadastro
+- Data da Última Atualização
+- Usuário da Última Atualização
 
 ---
 
-## 🔗 Endpoints da API
+## 🧩 Regras de Negócio
+- Não permitir cadastrar um **Autor** com o mesmo **Nome**, **Data de Nascimento** e **Nacionalidade**.
+  > Se houver dois autores com essas informações idênticas, serão considerados duplicados e o cadastro será impedido.
 
-### ➕ Cadastrar Autor
+- Não permitir **excluir um Autor** que possua algum livro cadastrado.
+
+---
+
+## 🔗 Contrato da API
+
+### 📍 Cadastrar novo Autor
 **Requisição**
 ```
-POST /autores
+URI: /autores
+Método: POST
 ```
-**Body**
+
+**Body:**
 ```json
 {
   "nome": "string",
@@ -52,21 +56,46 @@ POST /autores
 }
 ```
 
-**Respostas**
-- ✅ `201 Created` – Autor criado com sucesso  
-- ⚠️ `422 Unprocessable Entity` – Erro de validação  
-- ❌ `409 Conflict` – Autor duplicado  
+**Respostas:**
+
+#### ✅ Sucesso
+```
+Código: 201 - Created
+Header: Location - URI do recurso criado
+```
+
+#### ⚠️ Erro de Validação
+```json
+{
+  "status": 422,
+  "message": "Erro de Validação",
+  "errors": [
+    { "field": "nome", "error": "Nome é obrigatório" }
+  ]
+}
+```
+
+#### ❌ Autor Duplicado
+```json
+{
+  "status": 409,
+  "message": "Registro Duplicado",
+  "errors": []
+}
+```
 
 ---
 
-### 🔍 Visualizar Detalhes do Autor
+### 📍 Visualizar Detalhes do Autor
 **Requisição**
 ```
-GET /autores/{id}
+URI: /autores/{ID}
+Método: GET
 ```
 
-**Respostas**
-- ✅ `200 OK`  
+**Respostas:**
+
+#### ✅ Sucesso
 ```json
 {
   "id": "uuid",
@@ -75,38 +104,50 @@ GET /autores/{id}
   "nacionalidade": "string"
 }
 ```
-- ❌ `404 Not Found`  
+
+#### ❌ Erro
+```
+Código: 404 - Not Found
+```
 
 ---
 
-### ❌ Excluir Autor
+### 📍 Excluir Autor
 **Requisição**
 ```
-DELETE /autores/{id}
+URI: /autores/{ID}
+Método: DELETE
 ```
 
-**Respostas**
-- ✅ `204 No Content`  
-- ❌ `400 Bad Request` – Autor possui livros vinculados  
+**Respostas:**
 
+#### ✅ Sucesso
+```
+Código: 204 - No Content
+```
+
+#### ⚠️ Erro
 ```json
 {
-   "status": 400,
-   "message": "Erro na exclusão: registro está sendo utilizado.",
-   "errors": []
+  "status": 400,
+  "message": "Erro na exclusão: registro está sendo utilizado.",
+  "errors": []
 }
 ```
 
 ---
 
-### 🔎 Pesquisar Autores
+### 📍 Pesquisar Autores
 **Requisição**
 ```
-GET /autores?nome={nome}&nacionalidade={nacionalidade}
+URI: /autores
+Query Params: nome, nacionalidade
+Método: GET
 ```
 
-**Respostas**
-- ✅ `200 OK`  
+**Respostas:**
+
+#### ✅ Sucesso
 ```json
 [
   {
@@ -120,12 +161,14 @@ GET /autores?nome={nome}&nacionalidade={nacionalidade}
 
 ---
 
-### ✏️ Atualizar Autor
+### 📍 Atualizar Autor
 **Requisição**
 ```
-PUT /autores/{id}
+URI: /autores/{ID}
+Método: PUT
 ```
-**Body**
+
+**Body:**
 ```json
 {
   "nome": "string",
@@ -134,23 +177,253 @@ PUT /autores/{id}
 }
 ```
 
-**Respostas**
-- ✅ `204 No Content`  
-- ⚠️ `422 Unprocessable Entity` – Erro de validação  
-- ❌ `409 Conflict` – Autor duplicado  
+**Respostas:**
+
+#### ✅ Sucesso
+```
+Código: 204 - No Content
+```
+
+#### ⚠️ Erro de Validação
+```json
+{
+  "status": 422,
+  "message": "Erro de Validação",
+  "errors": [
+    { "field": "nome", "error": "Nome é obrigatório" }
+  ]
+}
+```
+
+#### ❌ Autor Duplicado
+```json
+{
+  "status": 409,
+  "message": "Registro Duplicado",
+  "errors": []
+}
+```
+# 📘 Cadastro de Livros
+
+## 📝 Descrição
+Deseja-se cadastrar os livros, bem como realizar suas **atualizações**, **consultas** e permitir sua **exclusão**.  
+Ao consultar um livro, deverão estar disponíveis filtros de pesquisa para **busca paginada**.  
+**Campos de busca:** título, gênero, ISBN, nome do autor e ano de publicação.
 
 ---
 
-## 🚀 Tecnologias Recomendadas
-- Linguagem: **Node.js / Java / C#**  
-- Banco de Dados: **PostgreSQL / MySQL**  
-- Formato de Resposta: **JSON**  
+## 👥 Atores
+- **Operador** e **Gerente** podem **consultar**, **cadastrar**, **atualizar** e **remover** livros.
 
 ---
 
-## 📌 Status do Projeto
-✅ Em desenvolvimento inicial.  
-Futuras melhorias:
-- Autenticação JWT  
-- Paginação na busca  
-- Integração com cadastro de livros  
+## 📋 Campos Solicitados pelo Negócio
+**Dados que deverão ser guardados:**
+- ISBN *
+- Título *
+- Data de Publicação *
+- Gênero
+- Preço
+- Autor *
+
+> Campos com (*) são obrigatórios.
+
+---
+
+## ⚙️ Campos Lógicos
+Dados não solicitados pela equipe de negócio, mas necessários para **controle da aplicação e auditoria**:
+- ID — UUID
+- Data de Cadastro
+- Data da Última Atualização
+- Usuário da Última Atualização
+
+---
+
+## 🧩 Regras de Negócio
+- Não permitir cadastrar um **Livro** com o mesmo **ISBN** que outro.
+- Se a **Data de Publicação** for **a partir de 2020**, o **Preço** deve ser informado obrigatoriamente.
+- A **Data de Publicação** não pode ser uma data **futura**.
+
+---
+
+## 🔗 Contrato da API
+
+### 📍 Cadastrar novo Livro
+**Requisição**
+```
+URI: /livros
+Método: POST
+```
+
+**Body:**
+```json
+{
+  "isbn": "string",
+  "titulo": "string",
+  "dataPublicacao": "date",
+  "genero": "enum",
+  "preco": number,
+  "id_autor": "uuid"
+}
+```
+
+**Respostas:**
+
+#### ✅ Sucesso
+```
+Código: 201 - Created
+Header: Location - URI do recurso criado
+```
+
+#### ⚠️ Erro de Validação
+```json
+{
+  "status": 422,
+  "message": "Erro de Validação",
+  "errors": [
+    { "field": "titulo", "error": "Campo obrigatório" }
+  ]
+}
+```
+
+#### ❌ ISBN Duplicado
+```json
+{
+  "status": 409,
+  "message": "Isbn Duplicado",
+  "errors": []
+}
+```
+
+---
+
+### 📍 Visualizar Detalhes do Livro
+**Requisição**
+```
+URI: /livros/{ID}
+Método: GET
+```
+
+**Respostas:**
+
+#### ✅ Sucesso
+```json
+{
+  "id": "uuid",
+  "isbn": "string",
+  "titulo": "string",
+  "dataPublicacao": "date",
+  "genero": "enum",
+  "preco": number,
+  "autor": {
+    "nome": "string",
+    "dataNascimento": "date",
+    "nacionalidade": "string"
+  }
+}
+```
+
+#### ❌ Erro
+```
+Código: 404 - Not Found
+```
+
+---
+
+### 📍 Excluir Livro
+**Requisição**
+```
+URI: /livros/{ID}
+Método: DELETE
+```
+
+**Respostas:**
+
+#### ✅ Sucesso
+```
+Código: 204 - No Content
+```
+
+#### ⚠️ Erro
+```
+Código: 404 - Livro inexistente
+```
+
+---
+
+### 📍 Pesquisar Livros
+**Requisição**
+```
+URI: /livros
+Query Params: isbn, titulo, nome autor, genero, ano de publicação
+Método: GET
+```
+
+**Respostas:**
+
+#### ✅ Sucesso
+```json
+[
+  {
+    "id": "uuid",
+    "isbn": "string",
+    "titulo": "string",
+    "dataPublicacao": "date",
+    "genero": "enum",
+    "preco": number,
+    "autor": {
+      "nome": "string",
+      "dataNascimento": "date",
+      "nacionalidade": "string"
+    }
+  }
+]
+```
+
+---
+
+### 📍 Atualizar Livro
+**Requisição**
+```
+URI: /livros/{ID}
+Método: PUT
+```
+
+**Body:**
+```json
+{
+  "isbn": "string",
+  "titulo": "string",
+  "dataPublicacao": "date",
+  "genero": "enum",
+  "preco": number,
+  "id_autor": "uuid"
+}
+```
+
+**Respostas:**
+
+#### ✅ Sucesso
+```
+Código: 204 - No Content
+```
+
+#### ⚠️ Erro de Validação
+```json
+{
+  "status": 422,
+  "message": "Erro de Validação",
+  "errors": [
+    { "field": "titulo", "error": "Campo obrigatório" }
+  ]
+}
+```
+
+#### ❌ ISBN Duplicado
+```json
+{
+  "status": 409,
+  "message": "ISBN Duplicado",
+  "errors": []
+}
+```

@@ -2,6 +2,7 @@ package com.emelyatila.libraryapi.controller;
 
 import com.emelyatila.libraryapi.controller.dto.CadastroLivroDTO;
 import com.emelyatila.libraryapi.controller.dto.ErroResposta;
+import com.emelyatila.libraryapi.controller.dto.ResultadoPesquisaLivroDTO;
 import com.emelyatila.libraryapi.controller.mappers.LivroMapper;
 import com.emelyatila.libraryapi.exceptions.RegistroDuplicadoException;
 import com.emelyatila.libraryapi.model.Livro;
@@ -9,10 +10,9 @@ import com.emelyatila.libraryapi.services.LivroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("livros")
@@ -32,5 +32,15 @@ public class LivroController implements GenericController {
         //retornar código created com header location
         var url = gerarHeaderLocation(livro.getId());
         return ResponseEntity.created(url).build();
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<ResultadoPesquisaLivroDTO> obterDetalhes(
+            @PathVariable("id") String id){
+
+        return service.obterPorId(UUID.fromString(id))
+                .map(livro -> {
+                    var dto = mapper.toDTO(livro);
+                })
     }
 }

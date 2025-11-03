@@ -8,7 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
+// injetar autrorDto pro metodo ResultadoPesquisaLivreoDTO
+@Mapper(componentModel = "spring" , uses = AutorMapper.class)
 public abstract class LivroMapper {
 
     @Autowired
